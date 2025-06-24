@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Comparador de Financiamento Imobiliário</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Ícones FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* ...reset e variáveis... */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #27ae60;
+            --text: #222;
+            --light-text: #6c757d;
+            --bg: #f7f9fb;
+            --bg-dark: #181c23;
+            --card-bg: #fff;
+            --card-bg-dark: #232a36;
+            --border: #e9ecef;
+            --border-dark: #2a3140;
+            --santander: #ec0000;
+            --itau: #ff6900;
+            --bradesco: #cc092f;
+            --caixa: #0066cc;
+            --bb: #fed100;
+            --inter: #ff7300;
+            --logo-blue: #ee6b00;
+            --azul-escuro: #1a2947;
+            --laranja: #ff8000;
+            --comp-bg: #f4f7fa;
+            --comp-bg-dark: #202634;
+            --comp-card: #fff;
+            --comp-card-dark: #232a36;
+            --comp-border: #e0e4ea;
+            --comp-border-dark: #2a3140;
+            --comp-blue: #1a2947;
+            --comp-blue-dark: #fff;
+            --comp-orange: #ff8000;
+            --comp-green: #27ae60;
+            --comp-red: #e74c3c;
+            --focus: #ff8000;
+            --shadow: 0 4px 24px rgba(44,62,80,0.10);
+        }
+        [data-theme="dark"] {
+            --bg: var(--bg-dark);
+            --card-bg: var(--card-bg-dark);
+            --border: var(--border-dark);
+            --comp-bg: var(--comp-bg-dark);
+            --comp-card: var(--comp-card-dark);
+            --comp-border: var(--comp-border-dark);
+            --text: #f7f9fb;
+            --comp-blue: #fff;
+        }
+        [data-theme="dark"] .results-table th {
+            color: #fff !important;
+            background: #0b1629 !important;
+        }
+        /* Corrige o fundo do cabeçalho da tabela no modo escuro */
+        [data-theme="dark"] .results-table {
+            background: var(--comp-card-dark);
+        }
+        [data-theme="dark"] .results-table tr {
+            background: var(--comp-card-dark);
+        }
+        /* Adicione este bloco para manter o cabeçalho branco no modo escuro */
+        [data-theme="dark"] .results-table th {
+            color: #fff !important;
+        }
+        html, body {
+            height: 100%;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem 1.5rem 1rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .logo {
+            font-size: 2.3rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+        .logo span {
+            color: var(--logo-blue);
+        }
+        .logo-text {
+            color: var(--comp-blue);
+        }
+        .header-title {
+            font-size: 2.1rem;
+            color: var(--comp-blue);
+            margin-bottom: 0.7rem;
+            font-weight: 700;
+        }
+        .header-subtitle {
+            color: var(--light-text);
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1.08rem;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: var(--comp-card);
+            border: 1.5px solid var(--comp-border);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, border 0.2s;
+            z-index: 10;
+        }
+        .theme-toggle:focus {
+            outline: 2px solid var(--focus);
+        }
+        .compare-btn {
+            display: block;
+            margin: 2.5rem auto 2rem auto;
+            padding: 1.2rem 3.2rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(90deg, var(--laranja) 0%, var(--azul-escuro) 100%);
+            border: none;
+            border-radius: 32px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+            letter-spacing: 1px;
+            outline: none;
+        }
+        .compare-btn:hover, .compare-btn:focus {
+            background: linear-gradient(90deg, var(--azul-escuro) 0%, var(--laranja) 100%);
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 32px rgba(44,62,80,0.13);
+        }
+        /* Cards dos bancos */
+        .banks-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 22px;
+            margin-bottom: 2.5rem;
+        }
+        .bank-card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s;
+            border: 1.5px solid var(--border);
+            position: relative;
+        }
+        .bank-card.active {
+            transform: scale(1.025);
+            box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+            z-index: 2;
+        }
+        .bank-header {
+            background: #f1f8ff;
+            padding: 16px 18px 12px 18px;
+            border-bottom: 1.5px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .bank-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .bank-name {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .bank-rate {
+            font-size: 0.98rem;
+            color: var(--light-text);
+        }
+        .bank-percentage {
+            background: #e1f5fe;
+            color: #01579b;
+            padding: 7px 13px;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.93rem;
+        }
+        .bank-body {
+            padding: 16px 18px 14px 18px;
+        }
+        .bank-details {
+            margin-bottom: 10px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(.4,0,.2,1);
+        }
+        .bank-card.active .bank-details {
+            margin-bottom: 10px;
+            max-height: 600px;
+            overflow: auto;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+        .detail-label {
+            font-size: 0.93rem;
+            color: #888;
+        }
+        .detail-value {
+            font-size: 0.93rem;
+            font-weight: 500;
+            color: var(--comp-blue);
+        }
+        .section-title {
+            font-weight: 600;
+            color: var(--comp-orange);
+            margin: 10px 0 2px 0;
+            font-size: 1rem;
+        }
+        .toggle-btn {
+            background: linear-gradient(90deg, var(--comp-orange) 0%, var(--comp-blue) 100%);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.97rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+            outline: none;
+            margin-top: 8px;
+        }
+        .toggle-btn:focus {
+            outline: 2px solid var(--focus);
+        }
+        .toggle-btn:hover {
+            background: linear-gradient(90deg, var(--comp-blue) 0%, var(--comp-orange) 100%);
+        }
+        /* Comparador */
+        #comparador {
+            background: var(--comp-bg);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            margin-top: 3.5rem;
+            padding-bottom: 2rem;
+            transition: background 0.3s;
+        }
+        #comparador .header {
+            background: var(--comp-card);
+            color: var(--comp-blue);
+            border-bottom: 4px solid var(--comp-blue);
+            border-radius: 18px 18px 0 0;
+            padding: 28px 0 18px 0;
+        }
+        #comparador .header-title .destaque-azul {
+            color: var(--comp-blue) !important;
+        }
+        #comparador .header-title .destaque-laranja {
+            color: var(--comp-orange) !important;
+        }
+        #comparador .form-section {
+            background: var(--comp-card);
+            border-radius: 0 0 18px 18px;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            padding: 32px 18px 18px 18px;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+            margin-bottom: 26px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: var(--comp-blue);
+            margin-bottom: 5px;
+            font-size: 0.97rem;
+        }
+        .form-group input, .form-group select {
+            padding: 12px 15px;
+            border: 2px solid var(--comp-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--comp-card);
+            color: var(--text);
+            transition: border 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--comp-orange);
+            box-shadow: 0 0 0 2px rgba(255,128,0,0.10);
+        }
+        .form-group input[aria-invalid="true"] {
+            border-color: var(--comp-red);
+            background: #fff0f0;
+        }
+        .form-group .input-hint {
+            font-size: 0.88rem;
+            color: var(--light-text);
+            margin-top: 2px;
+        }
+        .calculate-btn {
+            background: linear-gradient(90deg, var(--comp-orange) 0%, var(--comp-blue) 100%);
+            color: #fff;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 18px rgba(44,62,80,0.08);
+            outline: none;
+        }
+        .calculate-btn:focus {
+            outline: 2px solid var(--focus);
+        }
+        .calculate-btn:hover {
+            background: linear-gradient(90deg, var(--comp-blue) 0%, var(--comp-orange) 100%);
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 25px rgba(46, 204, 113, 0.13);
+        }
+        /* Loader */
+        .loader {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        .loader-dot {
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: var(--comp-orange);
+            animation: loader-bounce 1s infinite alternate;
+        }
+        .loader-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes loader-bounce {
+            to { transform: translateY(-10px); background: var(--comp-blue);}
+        }
+        /* Resultados */
+        .results-section {
+            padding: 32px 18px 18px 18px;
+            background: var(--comp-card);
+            border-radius: 18px;
+            margin-top: 2rem;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            transition: background 0.3s;
+        }
+        .statistics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+        .stat-card {
+            background: var(--comp-bg);
+            color: var(--comp-blue);
+            border-radius: 10px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            border: 2px solid var(--comp-blue);
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+        }
+        .stat-card .destaque-laranja {
+            color: var(--comp-orange) !important;
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            background: var(--comp-card);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+            font-size: 1rem;
+        }
+        .results-table th, .results-table td {
+            padding: 13px 10px;
+        }
+        .results-table th {
+            background: var(--comp-blue);
+            color: #fff;
+            text-align: left;
+            font-weight: 600;
+        }
+        .results-table td {
+            border-bottom: 1px solid var(--comp-border);
+        }
+        .results-table tr.viable {
+            background: rgba(39, 174, 96, 0.07);
+            border-left: 4px solid var(--comp-green);
+        }
+        .results-table tr.non-viable {
+            background: rgba(231, 76, 60, 0.07);
+            border-left: 4px solid var(--comp-red);
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-viable {
+            background: var(--comp-green);
+            color: white;
+        }
+        .status-non-viable {
+            background: var(--comp-red);
+            color: white;
+        }
+        .destaque-azul {
+            color: var(--comp-blue) !important;
+            font-weight: 600;
+        }
+        .destaque-laranja {
+            color: var(--comp-orange) !important;
+            font-weight: 700;
+        }
+        /* Aviso Legal */
+        .legal-notice {
+            background: #fffbe6;
+            border: 1.5px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 18px 18px 18px 54px;
+            margin-top: 28px;
+            position: relative;
+            color: #856404;
+            font-size: 0.98rem;
+        }
+        .legal-notice:before {
+            content: "\f071";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 18px;
+            top: 18px;
+            font-size: 1.7rem;
+            color: #ff8000;
+            opacity: 0.85;
+        }
+        .legal-notice h3 {
+            color: #856404;
+            margin-bottom: 7px;
+            font-size: 1.1rem;
+        }
+        .legal-notice p {
+            color: #856404;
+            font-size: 0.97rem;
+            line-height: 1.5;
+        }
+        .hidden { display: none !important; }
+        /* Contatos */
+        .contact-info {
+            margin-top: 3rem;
+            background: var(--contact-bg, rgba(255,255,255,0.13));
+            backdrop-filter: blur(8px);
+            padding: 1.5rem 1rem;
+            border-radius: 12px;
+            color: var(--comp-blue);
+            font-size: 1.08rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+            z-index: 100;
+            text-align: center;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        .contact-title {
+            font-weight: 700;
+            margin-bottom: 0.7rem;
+            color: var(--comp-blue);
+            font-size: 1.13rem;
+        }
+        .contact-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--comp-orange) 0%, var(--comp-blue) 100%);
+            padding: 9px 22px;
+            border-radius: 22px;
+            margin: 0 0.3em;
+            display: inline-block;
+            transition: background 0.2s, color 0.2s;
+            min-width: 180px;
+            text-align: center;
+            font-size: 1.08rem;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+        }
+        .contact-link:hover, .contact-link:focus {
+            background: linear-gradient(90deg, var(--comp-blue) 0%, var(--comp-orange) 100%);
+            color: #fff;
+            outline: 2px solid var(--focus);
+        }
+        /* Responsividade */
+        @media (max-width: 900px) {
+            .container { padding: 1.2rem 0.5rem; }
+            .banks-container { grid-template-columns: 1fr 1fr; }
+            .contact-info { flex-direction: column; gap: 1rem; }
+        }
+        @media (max-width: 600px) {
+            .banks-container { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+            .statistics { grid-template-columns: 1fr; }
+            .results-table { font-size: 0.93rem; }
+            .contact-info { font-size: 1rem; }
+        }
+        /* Foco visível para acessibilidade */
+        :focus-visible {
+            outline: 2px solid var(--focus);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Dark mode toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Alternar modo escuro/claro" tabindex="0">
+            <i class="fa-solid fa-moon" id="themeIcon"></i>
+        </button>
+        <!-- Header Efetiva -->
+        <header>
+            <div class="logo"><span>Efetiva</span> <span class="logo-text">Assessoria Imobiliária</span></div>
+            <h1 class="header-title">Comparativo de Financiamentos Imobiliários</h1>
+            <p class="header-subtitle">As condições mais atualizadas dos principais bancos para você financiar seu imóvel com as melhores taxas do mercado</p>
+        </header>
+        <!-- Botão principal grande -->
+        <button class="compare-btn" onclick="document.getElementById('comparador').scrollIntoView({behavior:'smooth'})">
+            Simule uma comparação agora
+        </button>
+        <!-- Cards dos bancos (informações detalhadas de cada banco) -->
+        <div class="banks-container">
+            <!-- Santander -->
+            <div class="bank-card santander">
+                <div class="bank-header">
+                    <div class="bank-info">
+                        <div class="bank-name" style="color:var(--santander);">Santander</div>
+                        <div class="bank-rate">Taxa a partir de 12,99% a.a.</div>
+                    </div>
+                    <div class="bank-percentage" style="background:var(--santander);color:#fff;">80%</div>
+                </div>
+                <div class="bank-body">
+                    <div class="bank-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">80%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Imóvel</span>
+                            <span class="detail-value">Novo e Usado</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa Mínima</span>
+                            <span class="detail-value">12,99% a.a.</span>
+                        </div>
+                    </div>
+                    <button class="toggle-btn" style="background:var(--santander);">
+                        <span class="toggle-text">Ver Detalhes</span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Itaú -->
+            <div class="bank-card itau">
+                <div class="bank-header">
+                    <div class="bank-info">
+                        <div class="bank-name" style="color:var(--itau);">Itaú</div>
+                        <div class="bank-rate">Taxa a partir de 12,39% a.a.</div>
+                    </div>
+                    <div class="bank-percentage" style="background:var(--itau);color:#fff;">60-80%</div>
+                </div>
+                <div class="bank-body">
+                    <div class="bank-details">
+                        <div class="section-title">Cliente Agência</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">60%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Segmento</span>
+                            <span class="detail-value">Cliente Padrão</span>
+                        </div>
+                        <div class="section-title">Uniclass / Personnalité</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">70% - 80%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Requisito</span>
+                            <span class="detail-value">Bom relacionamento</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa Mínima</span>
+                            <span class="detail-value">12,39% a.a.</span>
+                        </div>
+                    </div>
+                    <button class="toggle-btn" style="background:var(--itau);">
+                        <span class="toggle-text">Ver Detalhes</span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Bradesco -->
+            <div class="bank-card bradesco">
+                <div class="bank-header">
+                    <div class="bank-info">
+                        <div class="bank-name" style="color:var(--bradesco);">Bradesco</div>
+                        <div class="bank-rate">Taxa a partir de 13,50% a.a.</div>
+                    </div>
+                    <div class="bank-percentage" style="background:var(--bradesco);color:#fff;">70%</div>
+                </div>
+                <div class="bank-body">
+                    <div class="bank-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">70%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa Mínima</span>
+                            <span class="detail-value">13,50% a.a.</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Imóvel</span>
+                            <span class="detail-value">Novo e Usado</span>
+                        </div>
+                    </div>
+                    <button class="toggle-btn" style="background:var(--bradesco);">
+                        <span class="toggle-text">Ver Detalhes</span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Caixa -->
+            <div class="bank-card caixa">
+                <div class="bank-header">
+                    <div class="bank-info">
+                        <div class="bank-name" style="color:var(--caixa);">Caixa</div>
+                        <div class="bank-rate">Taxa a partir de 10,49% a.a.</div>
+                    </div>
+                    <div class="bank-percentage" style="background:var(--caixa);color:#fff;">50-80%</div>
+                </div>
+                <div class="bank-body">
+                    <div class="bank-details">
+                        <div class="section-title">MCMV - Faixa 1 e 2</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">80%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Imóvel</span>
+                            <span class="detail-value">Novo e Usado</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa</span>
+                            <span class="detail-value">A partir de 4,50%</span>
+                        </div>
+                        <div class="section-title">MCMV - Faixa 3 (Usado)</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">65%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="section-title">MCMV - Faixa 3 (Novo)</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">80%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="section-title">Classe média/Faixa 4 (Usado)</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">60%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="section-title">Classe média/Faixa 4 (Novo)</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">80%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="section-title">SBPE</div>
+                        <div class="detail-item">
+                            <span class="detail-label">SAC</span>
+                            <span class="detail-value">70% (Novo e Usado)</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">PRICE</span>
+                            <span class="detail-value">50% (Novo e Usado)</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa TR</span>
+                            <span class="detail-value">11,49% a.a.</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa Poupança</span>
+                            <span class="detail-value">10,76% a.a.</span>
+                        </div>
+                        <div class="section-title" style="margin-top:18px;">Faixas de Renda</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Faixa 1</span>
+                            <span class="detail-value">Até R$ 2.850,00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Faixa 2</span>
+                            <span class="detail-value">R$ 2.850,01 a R$ 4.700,00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Faixa 3</span>
+                            <span class="detail-value">R$ 4.700,01 a R$ 8.600,00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Classe média/Faixa 4</span>
+                            <span class="detail-value">R$ 8.600,01 a R$ 12.000,00</span>
+                        </div>
+                        <div class="section-title" style="margin-top:14px;">Tetos para Sapucaia do Sul</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Faixa 1 e 2 (Novo/Usado)</span>
+                            <span class="detail-value">R$ 264.000,00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Faixa 3 (Usado)</span>
+                            <span class="detail-value">R$ 270.000,00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Faixa 3 (Novo)</span>
+                            <span class="detail-value">R$ 350.000,00</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Classe média/Faixa 4</span>
+                            <span class="detail-value">R$ 500.000,00</span>
+                        </div>
+                    </div>
+                    <button class="toggle-btn" style="background:var(--caixa);">
+                        <span class="toggle-text">Ver Detalhes</span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Banco do Brasil -->
+            <div class="bank-card bb">
+                <div class="bank-header">
+                    <div class="bank-info">
+                        <div class="bank-name" style="color:var(--bb);">Banco do Brasil</div>
+                        <div class="bank-rate">Taxa a partir de 15% a.a.</div>
+                    </div>
+                    <div class="bank-percentage" style="background:var(--bb);color:#ffffff;">70-80%</div>
+                </div>
+                <div class="bank-body">
+                    <div class="bank-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">70% - 80%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa Mínima</span>
+                            <span class="detail-value">15% a.a. (apenas para correntistas)</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Imóvel</span>
+                            <span class="detail-value">Novo e Usado</span>
+                        </div>
+                    </div>
+                    <button class="toggle-btn" style="background:var(--bb);color:#ffffff;">
+                        <span class="toggle-text">Ver Detalhes</span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Inter -->
+            <div class="bank-card inter">
+                <div class="bank-header">
+                    <div class="bank-info">
+                        <div class="bank-name" style="color:var(--inter);">Banco Inter</div>
+                        <div class="bank-rate">Taxa a partir de 11,50% a.a.</div>
+                    </div>
+                    <div class="bank-percentage" style="background:var(--inter);color:#fff;">75%</div>
+                </div>
+                <div class="bank-body">
+                    <div class="bank-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Percentual</span>
+                            <span class="detail-value">75%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Taxa Mínima</span>
+                            <span class="detail-value">11,50% a.a.</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Modalidade</span>
+                            <span class="detail-value">SAC / PRICE</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Índice de correção</span>
+                            <span class="detail-value">IPCA</span>
+                        </div>
+                    </div>
+                    <button class="toggle-btn" style="background:var(--inter);">
+                        <span class="toggle-text">Ver Detalhes</span>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Comparador de Financiamento -->
+        <div id="comparador">
+            <div class="header">
+                <div class="header-title">
+                    <span class="destaque-azul">Comparador de Financiamento</span>
+                    <span class="destaque-laranja">EFETIVA</span>
+                </div>
+                <p>Compare as melhores condições dos principais bancos do Brasil</p>
+            </div>
+            <div class="form-section">
+                <form id="formSimulador" autocomplete="off" novalidate>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="valorImovel">Valor do Imóvel (R$)</label>
+                            <input type="text" id="valorImovel" inputmode="numeric" placeholder="Ex: 300.000,00" aria-describedby="hintImovel" required>
+                            <span class="input-hint" id="hintImovel">Digite o valor total do imóvel.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="valorDesejado">Valor Desejado (R$)</label>
+                            <input type="text" id="valorDesejado" inputmode="numeric" placeholder="Ex: 240.000,00" aria-describedby="hintDesejado" required>
+                            <span class="input-hint" id="hintDesejado">Quanto deseja financiar?</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="idade">Idade</label>
+                            <input type="number" id="idade" min="18" max="75" placeholder="Ex: 35" aria-describedby="hintIdade" required>
+                            <span class="input-hint" id="hintIdade">Idade do proponente principal.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="prazo">Prazo (meses)</label>
+                            <input type="number" id="prazo" min="12" max="420" placeholder="Ex: 360" aria-describedby="hintPrazo" required>
+                            <span class="input-hint" id="hintPrazo">Prazo desejado para pagamento.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipoImovel">Tipo do Imóvel</label>
+                            <select id="tipoImovel" aria-describedby="hintTipoImovel">
+                                <option value="usado" selected>Usado</option>
+                                <option value="novo">Novo</option>
+                            </select>
+                            <span class="input-hint" id="hintTipoImovel">Selecione se o imóvel é novo ou usado.</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalidade">Modalidade</label>
+                            <select id="modalidade" aria-describedby="hintModalidade">
+                                <option value="SAC">SAC</option>
+                                <option value="PRICE">PRICE</option>
+                            </select>
+                            <span class="input-hint" id="hintModalidade">Escolha a modalidade de amortização.</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="calculate-btn" id="btnSimular">Simular</button>
+                </form>
+                <div class="loader hidden" id="loaderSimulador" aria-live="polite" aria-busy="true">
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                    <span class="loader-dot"></span>
+                </div>
+            </div>
+            <div class="results-section hidden" id="resultsSection">
+                <div class="statistics" id="statistics"></div>
+                <div style="overflow-x:auto;">
+                    <table class="results-table" id="resultsTable">
+    <thead>
+        <tr>
+            <th>Banco</th>
+            <th>Modalidade</th>
+            <th>Taxa</th>
+            <th>Índice</th>
+            <th>Parcela</th>
+            <th>Status</th>
+            <th>Renda teórica necessária</th>
+            <th>Observações</th>
+        </tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+</table>
+                </div>
+                <div class="legal-notice" tabindex="0">
+                    <h3>Aviso Legal</h3>
+                    <p>
+                        Este simulador é apenas uma ferramenta de comparação e não constitui proposta formal de crédito.
+                        As taxas e condições apresentadas são estimativas baseadas em informações públicas e podem variar
+                        conforme análise de crédito, relacionamento bancário e outras variáveis específicas.
+                        Consulte sempre o banco de sua escolha para obter condições atualizadas e oficiais.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="contact-info">
+            <div>
+                <a class="contact-link" href="https://wa.me/555194254390?text=Olá!%20Quero%20mais%20informações%20sobre%20financiamento%20imobiliário." target="_blank" rel="noopener" aria-label="WhatsApp Guilherme">
+                    <i class="fab fa-whatsapp"></i> 51 94254390 (Guilherme)
+                </a>
+            </div>
+            <div>
+                <a class="contact-link" href="https://wa.me/555181772427?text=Olá!%20Quero%20mais%20informações%20sobre%20financiamento%20imobiliário." target="_blank" rel="noopener" aria-label="WhatsApp Maia">
+                    <i class="fab fa-whatsapp"></i> 51 81772427 (Maia)
+                </a>
+            </div>
+            <div>
+                <a class="contact-link" href="https://wa.me/555194621069?text=Olá!%20Quero%20mais%20informações%20sobre%20financiamento%20imobiliário." target="_blank" rel="noopener" aria-label="WhatsApp Maria Eduarda">
+                    <i class="fab fa-whatsapp"></i> 51 94621069 (Maria Eduarda)
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+    // --- Dark mode toggle ---
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    function setTheme(dark) {
+        if (dark) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeIcon.className = 'fa-solid fa-sun';
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            themeIcon.className = 'fa-solid fa-moon';
+        }
+        localStorage.setItem('theme', dark ? 'dark' : 'light');
+    }
+    // Inicializa tema
+    (() => {
+        const saved = localStorage.getItem('theme');
+        setTheme(saved === 'dark');
+    })();
+    themeToggle.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        setTheme(!isDark);
+    });
+
+    // --- Máscara de moeda e validação visual ---
+    function formatarMoeda(valor) {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(valor);
+    }
+    function formatarPercentual(valor) {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'percent',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(valor / 100);
+    }
+    function aplicarMascaraMoeda(input) {
+        let valor = input.value.replace(/\D/g, '');
+        valor = (valor / 100).toFixed(2);
+        input.value = new Intl.NumberFormat('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(valor);
+    }
+    function converterParaNumero(valorFormatado) {
+        return parseFloat(valorFormatado.replace(/\./g, '').replace(',', '.')) || 0;
+    }
+    // Inputs monetários
+    document.getElementById('valorImovel').addEventListener('input', function() {
+        aplicarMascaraMoeda(this);
+        this.setAttribute('aria-invalid', this.value.trim() === '' || converterParaNumero(this.value) <= 0);
+    });
+    document.getElementById('valorDesejado').addEventListener('input', function() {
+        aplicarMascaraMoeda(this);
+        this.setAttribute('aria-invalid', this.value.trim() === '' || converterParaNumero(this.value) <= 0);
+    });
+
+    // Validação visual dos campos obrigatórios
+    function validarCampos() {
+        let valido = true;
+        ['valorImovel','valorDesejado','idade','prazo'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el.value || (el.type === 'number' && el.value <= 0)) {
+                el.setAttribute('aria-invalid', 'true');
+                valido = false;
+            } else {
+                el.removeAttribute('aria-invalid');
+            }
+        });
+        return valido;
+    }
+
+    // --- Loader ---
+    function mostrarLoader(mostrar) {
+        document.getElementById('loaderSimulador').classList.toggle('hidden', !mostrar);
+        document.getElementById('btnSimular').disabled = mostrar;
+    }
+
+    // --- Simulação: modularizado, otimizado e comentado ---
+    // Obter condições dos bancos (ajuste regras específicas)
+    function obterCondicoesBancos(imovelNovo) {
+        return [
+            // Itaú - Segmentos diferentes
+            {
+                banco: 'Itaú',
+                programa: 'Personnalité',
+                modalidades: ['SAC'],
+                indice: 'TR',
+                taxa: 12.39,
+                percentualSAC: 80,
+                percentualPRICE: 0,
+                prazoMaximo: 420,
+                valorMinimoFinanciamento: 50000,
+                valorMinimoImovel: 100000
+            },
+            {
+                banco: 'Itaú',
+                programa: 'Uniclass',
+                modalidades: ['SAC'],
+                indice: 'TR',
+                taxa: 13.09,
+                percentualSAC: 80,
+                percentualPRICE: 0,
+                prazoMaximo: 420,
+                valorMinimoFinanciamento: 50000,
+                valorMinimoImovel: 100000
+            },
+            {
+                banco: 'Itaú',
+                programa: 'Agência/Não correntista',
+                modalidades: ['SAC'],
+                indice: 'TR',
+                taxa: 13.69,
+                percentualSAC: 60,
+                percentualPRICE: 0,
+                prazoMaximo: 420,
+                valorMinimoFinanciamento: 50000,
+                valorMinimoImovel: 100000
+            },
+            // Bradesco
+            {
+                banco: 'Bradesco',
+                programa: 'Padrão',
+                modalidades: ['SAC', 'PRICE'],
+                indice: 'TR',
+                taxa: 13.50,
+                percentualSAC: 70,
+                percentualPRICE: 70,
+                prazoMaximo: 420,
+                prestacaoMinima: 200,
+                valorMinimoFinanciamento: 30000,
+                valorMinimoImovel: 50000
+            },
+            // Santander
+            {
+                banco: 'Santander',
+                programa: 'Padrão',
+                modalidades: ['SAC', 'PRICE'],
+                indice: 'TR',
+                taxa: 13.79,
+                percentualSAC: 80,
+                percentualPRICE: 80,
+                prazoMaximo: 420,
+                valorMinimoFinanciamento: 60000, // alterado para 60.000
+                valorMinimoImovel: 60000 // alterado para 60.000
+            },
+            // Inter
+            {
+                banco: 'Inter',
+                programa: 'Padrão',
+                modalidades: ['SAC'],
+                indice: 'IPCA',
+                taxa: 11.51,
+                percentualSAC: 75,
+                percentualPRICE: 0,
+                prazoMaximo: 420,
+                valorMinimoFinanciamento: 100000, // mínimo financiamento 100.000
+                valorMinimoImovel: 200000 // mínimo imóvel 200.000
+            },
+            // Banco do Brasil
+            {
+                banco: 'Banco do Brasil',
+                programa: 'Padrão',
+                modalidades: ['SAC', 'PRICE'],
+                indice: 'TR',
+                taxa: 17.00,
+                percentualSAC: 70,
+                percentualPRICE: 70,
+                prazoMaximo: 360,
+                valorMinimoFinanciamento: 30000,
+                valorMinimoImovel: 50000
+            },
+            // Caixa SBPE - TR
+            {
+                banco: 'Caixa',
+                programa: 'SBPE - TR',
+                modalidades: ['SAC', 'PRICE'],
+                indice: 'TR',
+                taxa: 11.49,
+                percentualSAC: 70,
+                percentualPRICE: 50,
+                prazoMaximo: 420,
+                prazoMaximoPRICE: 360,
+                valorMinimoFinanciamento: 30000,
+                valorMinimoImovel: 50000,
+                valorMaximoImovel: 1500000 // máximo imóvel 1.500.000
+            },
+            // Caixa SBPE - Poupança
+            {
+                banco: 'Caixa',
+                programa: 'SBPE - Poupança',
+                modalidades: ['SAC', 'PRICE'],
+                indice: 'Poupança',
+                taxa: 10.76,
+                percentualSAC: 70,
+                percentualPRICE: 50,
+                prazoMaximo: 420,
+                prazoMaximoPRICE: 360,
+                valorMinimoFinanciamento: 30000,
+                valorMinimoImovel: 50000,
+                valorMaximoImovel: 1500000 // máximo imóvel 1.500.000
+            },
+            // Caixa Classe Média - Usado
+            {
+                banco: 'Caixa',
+                programa: 'Classe Média',
+                modalidades: ['SAC', 'PRICE'],
+                indice: 'TR',
+                taxa: 10.50,
+                percentualSAC: imovelNovo ? 80 : 60,
+                percentualPRICE: imovelNovo ? 80 : 60,
+                prazoMaximo: 420,
+                valorMinimoFinanciamento: 100000, // mínimo financiamento 100.000
+                valorMinimoImovel: 50000,
+                valorMaximoImovel: 500000,
+                condicaoEspecial: true
+            }
+        ];
+    }
+
+    // Calcular parcela PRICE
+    function calcularPRICE(valor, taxa, prazo) {
+        const i = taxa / 12 / 100;
+        if (i === 0) return valor / prazo;
+        return valor * (i / (1 - Math.pow(1 + i, -prazo)));
+    }
+
+    // Calcular parcela SAC (primeira parcela - maior)
+    function calcularSAC(valor, taxa, prazo) {
+        const amortizacao = valor / prazo;
+        const juros = valor * (taxa / 12 / 100);
+        return amortizacao + juros;
+    }
+
+    // Validar viabilidade (melhorar mensagens e evitar repetições)
+    function validarViabilidade(condicao, modalidade, valorImovel, valorDesejado, idade, prazo) {
+        const observacoes = [];
+        let viavel = true;
+
+        // Verificar se modalidade é suportada
+        if (!condicao.modalidades.includes(modalidade)) {
+            viavel = false;
+            observacoes.push(`Modalidade <b>${modalidade}</b> não disponível para esta opção.`);
+        }
+
+        // Verificar percentual solicitado
+        const percentualSolicitado = (valorDesejado / valorImovel) * 100;
+        const percentualPermitido = modalidade === 'SAC' ? condicao.percentualSAC : condicao.percentualPRICE;
+        if (percentualSolicitado > percentualPermitido) {
+            viavel = false;
+            observacoes.push(
+                `Percentual solicitado: <b>${percentualSolicitado.toFixed(1)}%</b> (máximo permitido: <b>${percentualPermitido}%</b>)`
+            );
+        }
+
+        // Verificar prazo máximo por idade (limita a 80 anos e 6 meses)
+        const prazoMaximoIdade = 966 - (idade * 12);
+        if (prazo > prazoMaximoIdade) {
+            viavel = false;
+            observacoes.push(
+                `Prazo solicitado: <b>${prazo} meses</b> (máximo permitido pela idade: <b>${prazoMaximoIdade} meses</b>)`
+            );
+        }
+
+        // Verificar prazo máximo do banco
+        let prazoMaximo = condicao.prazoMaximo;
+        if (modalidade === 'PRICE' && condicao.prazoMaximoPRICE) {
+            prazoMaximo = condicao.prazoMaximoPRICE;
+        }
+        if (prazo > prazoMaximo) {
+            viavel = false;
+            observacoes.push(
+                `Prazo solicitado: <b>${prazo} meses</b> (máximo permitido pelo banco: <b>${prazoMaximo} meses</b>)`
+            );
+        }
+
+        // Verificar valor mínimo de financiamento
+        if (valorDesejado < condicao.valorMinimoFinanciamento) {
+            viavel = false;
+            observacoes.push(
+                `Valor solicitado: <b>${formatarMoeda(valorDesejado)}</b> (mínimo permitido: <b>${formatarMoeda(condicao.valorMinimoFinanciamento)}</b>)`
+            );
+        }
+
+        // Verificar valor mínimo do imóvel
+        if (valorImovel < condicao.valorMinimoImovel) {
+            viavel = false;
+            observacoes.push(
+                `Valor do imóvel: <b>${formatarMoeda(valorImovel)}</b> (mínimo permitido: <b>${formatarMoeda(condicao.valorMinimoImovel)}</b>)`
+            );
+        }
+
+        // Verificar valor máximo do imóvel (Caixa Classe Média)
+        if (condicao.valorMaximoImovel && valorImovel > condicao.valorMaximoImovel) {
+            viavel = false;
+            observacoes.push(
+                `Valor do imóvel: <b>${formatarMoeda(valorImovel)}</b> (máximo permitido: <b>${formatarMoeda(condicao.valorMaximoImovel)}</b>)`
+            );
+        }
+
+        // Remover observações duplicadas
+        const observacoesUnicas = [...new Set(observacoes)];
+
+        return { viavel, observacoes: observacoesUnicas };
+    }
+
+    // Calcular financiamento
+    function calcularFinanciamento() {
+        // Obter valores dos inputs
+        const valorImovel = converterParaNumero(document.getElementById('valorImovel').value);
+        const valorDesejado = converterParaNumero(document.getElementById('valorDesejado').value);
+        const idade = parseInt(document.getElementById('idade').value);
+        const prazo = parseInt(document.getElementById('prazo').value);
+        const tipoImovel = document.getElementById('tipoImovel').value;
+        const modalidadeSelecionada = document.getElementById('modalidade').value;
+
+        // Validar inputs
+        if (!valorImovel || !valorDesejado || !idade || !prazo) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+
+        if (valorDesejado > valorImovel) {
+            alert('O valor desejado não pode ser maior que o valor do imóvel.');
+            return;
+        }
+
+        const imovelNovo = tipoImovel === 'novo';
+        const condicoes = obterCondicoesBancos(imovelNovo);
+        const resultados = [];
+
+        condicoes.forEach(condicao => {
+            const modalidade = modalidadeSelecionada;
+            // Santander: se modalidade for PRICE, taxa +3%
+            let taxaAjustada = condicao.taxa;
+            if (condicao.banco === 'Santander' && modalidade === 'PRICE') {
+                taxaAjustada += 3;
+            }
+
+            // Pular modalidades não disponíveis
+            if (modalidade === 'SAC' && (!condicao.percentualSAC || condicao.percentualSAC === 0)) return;
+            if (modalidade === 'PRICE' && (!condicao.percentualPRICE || condicao.percentualPRICE === 0)) return;
+
+            // Validar viabilidade
+            const validacao = validarViabilidade(condicao, modalidade, valorImovel, valorDesejado, idade, prazo);
+
+            let parcela = 0;
+            if (validacao.viavel) {
+                if (modalidade === 'PRICE') {
+                    parcela = calcularPRICE(valorDesejado, taxaAjustada, prazo);
+                } else {
+                    parcela = calcularSAC(valorDesejado, taxaAjustada, prazo);
+                }
+
+                // Verificar prestação mínima (Bradesco)
+                if (condicao.prestacaoMinima && parcela < condicao.prestacaoMinima) {
+                    validacao.viavel = false;
+                    validacao.observacoes.push(`Parcela < mínima ${formatarMoeda(condicao.prestacaoMinima)}`);
+                }
+            }
+
+            resultados.push({
+                banco: condicao.banco,
+                programa: condicao.programa,
+                modalidade: modalidade,
+                taxa: taxaAjustada,
+                indice: condicao.indice,
+                parcela: parcela,
+                viavel: validacao.viavel,
+                observacoes: validacao.observacoes
+            });
+        });
+
+        // Ordenar resultados (viáveis primeiro, depois por menor parcela)
+        resultados.sort((a, b) => {
+            if (a.viavel && !b.viavel) return -1;
+            if (!a.viavel && b.viavel) return 1;
+            if (a.viavel && b.viavel) return a.parcela - b.parcela;
+            return 0;
+        });
+
+        // Exibir resultados
+        exibirResultados(resultados);
+    }
+
+    // Exibir resultados na tabela (padronizar nome dos bancos/programas)
+    function exibirResultados(resultados) {
+        const tbody = document.getElementById('resultsBody');
+        tbody.innerHTML = '';
+
+        // Calcular estatísticas
+        const viáveis = resultados.filter(r => r.viavel);
+        const melhorTaxa = viáveis.length > 0 ? Math.min(...viáveis.map(r => r.taxa)) : 0;
+        const menorParcela = viáveis.length > 0 ? Math.min(...viáveis.map(r => r.parcela)) : 0;
+
+        // Atualizar estatísticas (apenas azul escuro e laranja)
+        document.getElementById('statistics').innerHTML = `
+            <div class="stat-card" style="border:2px solid #1a2947;">
+                <h3 class="destaque-azul" style="font-weight:600;">Opções Viáveis</h3>
+                <p style="font-size:2rem;" class="destaque-azul">${viáveis.length}</p>
+            </div>
+            <div class="stat-card" style="border:2px solid #ff8000;">
+                <h3 class="destaque-laranja" style="font-weight:600;">Melhor Taxa</h3>
+                <p style="font-size:1.7rem;" class="destaque-laranja">${melhorTaxa > 0 ? formatarPercentual(melhorTaxa) : '<span style="color:#e74c3c;">N/A</span>'}</p>
+            </div>
+            <div class="stat-card" style="border:2px solid #1a2947;">
+                <h3 class="destaque-azul" style="font-weight:600;">Menor Parcela</h3>
+                <p style="font-size:1.7rem;" class="destaque-azul">${menorParcela > 0 ? formatarMoeda(menorParcela) : '<span style="color:#e74c3c;">N/A</span>'}</p>
+            </div>
+        `;
+
+        // Preencher tabela com resultados
+        resultados.forEach(resultado => {
+            const row = tbody.insertRow();
+            row.className = resultado.viavel ? 'viable' : 'non-viable';
+
+            // Padronizar nome: Banco em cima, programa embaixo (se não for "Padrão")
+            let nomeCompleto = `<div style="font-weight:600;" class="destaque-azul">${resultado.banco}</div>`;
+            if (resultado.programa && resultado.programa !== 'Padrão') {
+                // Remove redundâncias como "SBPE - " e espaços extras
+                let programaFormatado = resultado.programa.replace(/^SBPE - /, '').trim();
+                nomeCompleto += `<div style="font-size:0.98em; color:#888; font-weight:500;">${programaFormatado}</div>`;
+            }
+
+            // Observações formatadas em lista
+            let obsHtml = '-';
+            if (resultado.observacoes && resultado.observacoes.length > 0) {
+                obsHtml = `<ul style="padding-left:18px; margin:0;">` +
+                    resultado.observacoes
+                        .filter((v, i, a) => a.indexOf(v) === i)
+                        .map(obs => `<li style="margin-bottom:2px;">${obs}</li>`)
+                        .join('') +
+                    `</ul>`;
+            }
+
+            // Calcular renda teórica necessária (só se viável e parcela > 0)
+            let rendaTeorica = '-';
+            if (resultado.viavel && resultado.parcela > 0) {
+                rendaTeorica = formatarMoeda(resultado.parcela / 0.3);
+            }
+
+            // Visual: azul escuro e laranja forte para destaques
+            row.innerHTML = `
+                <td>${nomeCompleto}</td>
+                <td><span style="background:#f1f8ff; color:#1a2947; padding:4px 12px; border-radius:16px; font-weight:500;">${resultado.modalidade}</span></td>
+                <td><span class="destaque-azul">${formatarPercentual(resultado.taxa)}</span></td>
+                <td><span style="background:#ffe5c2; color:#ff8000; padding:3px 10px; border-radius:12px; font-size:0.95em;">${resultado.indice}</span></td>
+                <td><span style="color:#27ae60; font-weight:700;">${resultado.viavel ? formatarMoeda(resultado.parcela) : '-'}</span></td>
+                <td>
+                    <span class="status-badge ${resultado.viavel ? 'status-viable' : 'status-non-viable'}">
+                        ${resultado.viavel ? 'Viável' : 'Inviável'}
+                    </span>
+                </td>
+                <td><span style="color:#27ae60; font-weight:600;">${rendaTeorica}</span></td>
+                <td>${obsHtml}</td>
+            `;
+        });
+
+        // Mostrar seção de resultados
+        document.getElementById('resultsSection').classList.remove('hidden');
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Substitui o botão por submit do form para melhor UX/A11Y
+    document.getElementById('formSimulador').addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (!validarCampos()) {
+            alert('Por favor, preencha todos os campos obrigatórios corretamente.');
+            return;
+        }
+        mostrarLoader(true);
+        setTimeout(() => {
+            calcularFinanciamento();
+            mostrarLoader(false);
+        }, 600); // Simula tempo de processamento
+    });
+
+    // --- Cards dos bancos: animação suave e acessibilidade ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const bankCards = document.querySelectorAll('.bank-card');
+        const toggleButtons = document.querySelectorAll('.toggle-btn');
+        bankCards.forEach(card => {
+            card.classList.remove('active');
+            const details = card.querySelector('.bank-details');
+            if (details) {
+                details.style.maxHeight = '0px';
+                details.style.overflow = 'hidden';
+                details.style.transition = 'max-height 0.5s cubic-bezier(.4,0,.2,1)';
+            }
+            const btn = card.querySelector('.toggle-btn');
+            if (btn) {
+                btn.querySelector('.toggle-text').textContent = 'Ver Detalhes';
+                const icon = btn.querySelector('.toggle-icon');
+                if (icon) icon.className = 'fas fa-chevron-down toggle-icon';
+            }
+        });
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const card = this.closest('.bank-card');
+                const details = card.querySelector('.bank-details');
+                const isActive = card.classList.contains('active');
+                bankCards.forEach(c => {
+                    c.classList.remove('active');
+                    const btn = c.querySelector('.toggle-btn');
+                    if (btn) {
+                        btn.querySelector('.toggle-text').textContent = 'Ver Detalhes';
+                        const icon = btn.querySelector('.toggle-icon');
+                        if (icon) icon.className = 'fas fa-chevron-down toggle-icon';
+                    }
+                    const det = c.querySelector('.bank-details');
+                    if (det) det.style.maxHeight = '0px';
+                });
+                if (!isActive) {
+                    card.classList.add('active');
+                    this.querySelector('.toggle-text').textContent = 'Mostrar menos';
+                    const icon = this.querySelector('.toggle-icon');
+                    if (icon) icon.className = 'fas fa-chevron-up toggle-icon';
+                    if (details) {
+                        details.style.maxHeight = details.scrollHeight + "px";
+                    }
+                }
+            });
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.bank-card')) {
+                bankCards.forEach(card => {
+                    card.classList.remove('active');
+                    const btn = card.querySelector('.toggle-btn');
+                    if (btn) {
+                        btn.querySelector('.toggle-text').textContent = 'Ver Detalhes';
+                        const icon = btn.querySelector('.toggle-icon');
+                        if (icon) icon.className = 'fas fa-chevron-down toggle-icon';
+                    }
+                    const det = card.querySelector('.bank-details');
+                    if (det) det.style.maxHeight = '0px';
+                });
+            }
+        });
+    });
+    </script>
+</body>
+</html>
